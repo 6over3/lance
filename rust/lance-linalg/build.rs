@@ -34,7 +34,14 @@ fn main() -> Result<(), String> {
         return Ok(());
     }
 
-    if target_arch == "aarch64" && target_os == "macos" {
+    if cfg!(not(feature = "fp16kernels")) {
+        println!(
+            "cargo:warning=fp16kernels feature is not enabled, skipping build of fp16 kernels"
+        );
+        return Ok(());
+    }
+
+    if target_arch == "aarch64" && (target_os == "macos" || target_os == "ios") {
         // Build a version with NEON
         build_f16_with_flags("neon", &["-mtune=apple-m1"]).unwrap();
     } else if target_arch == "aarch64" && target_os == "linux" {
